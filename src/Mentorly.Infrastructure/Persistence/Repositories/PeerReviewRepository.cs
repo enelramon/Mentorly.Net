@@ -22,4 +22,32 @@ public sealed class PeerReviewRepository(MentorlyDbContext dbContext) : IPeerRev
     {
         return dbContext.PeerReviews.AddAsync(review, cancellationToken).AsTask();
     }
+
+    public Task<PeerReview[]> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return dbContext.PeerReviews
+            .AsNoTracking()
+            .OrderByDescending(review => review.CreatedAt)
+            .ToArrayAsync(cancellationToken);
+    }
+
+    public Task<PeerReview?> GetByIdAsync(Guid peerReviewId, CancellationToken cancellationToken = default)
+    {
+        return dbContext.PeerReviews
+            .FirstOrDefaultAsync(review => review.Id == peerReviewId, cancellationToken);
+    }
+
+    public Task UpdateAsync(PeerReview peerReview, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        dbContext.PeerReviews.Update(peerReview);
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteAsync(PeerReview peerReview, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        dbContext.PeerReviews.Remove(peerReview);
+        return Task.CompletedTask;
+    }
 }
