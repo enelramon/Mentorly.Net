@@ -1,11 +1,18 @@
 using Mentorly.Application.Abstractions.Persistence;
 using Mentorly.Domain.Entities;
+using Mentorly.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Mentorly.Infrastructure.Persistence.Repositories;
 
 public sealed class SubmissionRepository(MentorlyDbContext dbContext) : ISubmissionRepository
 {
+    public Task<Submission[]> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return dbContext.Submissions
+            .ToArrayAsync(cancellationToken);
+    }
+
     public Task<Submission?> GetByIdAsync(Guid submissionId, CancellationToken cancellationToken = default)
     {
         return dbContext.Submissions
@@ -35,5 +42,26 @@ public sealed class SubmissionRepository(MentorlyDbContext dbContext) : ISubmiss
     public Task AddAsync(Submission submission, CancellationToken cancellationToken = default)
     {
         return dbContext.Submissions.AddAsync(submission, cancellationToken).AsTask();
+    }
+
+    public Task UpdateAsync(Submission submission, CancellationToken cancellationToken = default)
+    {
+        dbContext.Submissions.Update(submission);
+        return Task.CompletedTask;
+    }
+
+    public Task<Submission[]> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return dbContext.Submissions
+            .AsNoTracking()
+            .OrderByDescending(submission => submission.SubmittedAt)
+            .ToArrayAsync(cancellationToken);
+    }
+
+    public Task DeleteAsync(Submission submission, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        dbContext.Submissions.Remove(submission);
+        return Task.CompletedTask;
     }
 }

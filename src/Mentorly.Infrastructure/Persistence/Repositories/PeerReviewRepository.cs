@@ -6,23 +6,6 @@ namespace Mentorly.Infrastructure.Persistence.Repositories;
 
 public sealed class PeerReviewRepository(MentorlyDbContext dbContext) : IPeerReviewRepository
 {
-    public Task<bool> HasReviewerAlreadyReviewedAsync(Guid submissionId, Guid reviewerStudentId, CancellationToken cancellationToken = default)
-    {
-        return dbContext.PeerReviews
-            .AnyAsync(x => x.SubmissionId == submissionId && x.ReviewerStudentId == reviewerStudentId, cancellationToken);
-    }
-
-    public Task<int> CountApprovalsForSubmissionAsync(Guid submissionId, CancellationToken cancellationToken = default)
-    {
-        return dbContext.PeerReviews
-            .CountAsync(x => x.SubmissionId == submissionId && x.IsApproved, cancellationToken);
-    }
-
-    public Task AddAsync(PeerReview review, CancellationToken cancellationToken = default)
-    {
-        return dbContext.PeerReviews.AddAsync(review, cancellationToken).AsTask();
-    }
-
     public Task<PeerReview[]> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return dbContext.PeerReviews
@@ -31,23 +14,74 @@ public sealed class PeerReviewRepository(MentorlyDbContext dbContext) : IPeerRev
             .ToArrayAsync(cancellationToken);
     }
 
-    public Task<PeerReview?> GetByIdAsync(Guid peerReviewId, CancellationToken cancellationToken = default)
+    public Task<PeerReview?> GetByIdAsync(
+        Guid peerReviewId,
+        CancellationToken cancellationToken = default)
     {
         return dbContext.PeerReviews
             .FirstOrDefaultAsync(review => review.Id == peerReviewId, cancellationToken);
     }
 
-    public Task UpdateAsync(PeerReview peerReview, CancellationToken cancellationToken = default)
+    public Task<PeerReview[]> GetBySubmissionIdAsync(
+        Guid submissionId,
+        CancellationToken cancellationToken = default)
+    {
+        return dbContext.PeerReviews
+            .AsNoTracking()
+            .Where(review => review.SubmissionId == submissionId)
+            .OrderBy(review => review.CreatedAt)
+            .ToArrayAsync(cancellationToken);
+    }
+
+    public Task<PeerReview[]> GetByReviewerStudentIdAsync(
+        Guid reviewerStudentId,
+        CancellationToken cancellationToken = default)
+    {
+        return dbContext.PeerReviews
+            .AsNoTracking()
+            .Where(review => review.ReviewerStudentId == reviewerStudentId)
+            .OrderByDescending(review => review.CreatedAt)
+            .ToArrayAsync(cancellationToken);
+    }
+
+    public Task<bool> HasReviewerAlreadyReviewedAsync(
+        Guid submissionId,
+        Guid reviewerStudentId,
+        CancellationToken cancellationToken = default)
+    {
+        return dbContext.PeerReviews
+            .AnyAsync(
+                review => review.SubmissionId == submissionId &&
+                          review.ReviewerStudentId == reviewerStudentId,
+                cancellationToken);
+    }
+
+    public Task<int> CountApprovalsForSubmissionAsync(
+        Guid submissionId,
+        CancellationToken cancellationToken = default)
+    {
+        return dbContext.PeerReviews
+            .CountAsync(
+                review => review.SubmissionId == submissionId && review.IsApproved,
+                cancellationToken);
+    }
+
+    public Task AddAsync(PeerReview review, CancellationToken cancellationToken = default)
+    {
+        return dbContext.PeerReviews.AddAsync(review, cancellationToken).AsTask();
+    }
+
+    public Task UpdateAsync(PeerReview review, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        dbContext.PeerReviews.Update(peerReview);
+        dbContext.PeerReviews.Update(review);
         return Task.CompletedTask;
     }
 
-    public Task DeleteAsync(PeerReview peerReview, CancellationToken cancellationToken = default)
+    public Task DeleteAsync(PeerReview review, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        dbContext.PeerReviews.Remove(peerReview);
+        dbContext.PeerReviews.Remove(review);
         return Task.CompletedTask;
     }
 }
