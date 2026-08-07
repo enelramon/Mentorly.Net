@@ -128,7 +128,7 @@ public sealed class PeerReviewService(
 
         peerReview.UpdateReview(dto.IsApproved, dto.FeedbackComment);
 
-        peerReviewRepository.Update(peerReview);
+        await peerReviewRepository.UpdateAsync(peerReview, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return true;
@@ -143,7 +143,7 @@ public sealed class PeerReviewService(
             return false;
         }
 
-        peerReviewRepository.Delete(peerReview);
+        await peerReviewRepository.DeleteAsync(peerReview, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return true;
