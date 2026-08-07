@@ -10,7 +10,7 @@ public sealed class PeerReviewService(
     IPeerReviewRepository peerReviewRepository,
     IUnitOfWork unitOfWork) : IPeerReviewService
 {
-    public async Task<IReadOnlyList<PeerReviewDto>> GetAllPeerReviewsAsync(CancellationToken cancellationToken = default)
+    public async Task<PeerReviewDto[]> GetAllPeerReviewsAsync(CancellationToken cancellationToken = default)
     {
         var peerReviews = await peerReviewRepository.GetAllAsync(cancellationToken);
 
@@ -21,7 +21,7 @@ public sealed class PeerReviewService(
             pr.IsApproved,
             pr.FeedbackComment,
             pr.CreatedAt))
-            .ToList();
+            .ToArray();
     }
 
     public async Task<PeerReviewDto?> GetPeerReviewByIdAsync(Guid peerReviewId, CancellationToken cancellationToken = default)

@@ -4,7 +4,7 @@ namespace Mentorly.Application.Services;
 
 public interface IPeerReviewService
 {
-    Task<IReadOnlyList<PeerReviewDto>> GetAllPeerReviewsAsync(CancellationToken cancellationToken = default);
+    Task<PeerReviewDto[]> GetAllPeerReviewsAsync(CancellationToken cancellationToken = default);
     Task<PeerReviewDto?> GetPeerReviewByIdAsync(Guid peerReviewId, CancellationToken cancellationToken = default);
     Task<PeerReviewResultDto> SubmitReviewAsync(CreatePeerReviewRequestDto request, CancellationToken cancellationToken = default);
     Task<bool> UpdatePeerReviewAsync(Guid peerReviewId, UpdatePeerReviewDto dto, CancellationToken cancellationToken = default);
