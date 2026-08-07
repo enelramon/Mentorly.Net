@@ -8,7 +8,7 @@ public sealed class SubmissionService(
     ISubmissionRepository submissionRepository,
     IUnitOfWork unitOfWork) : ISubmissionService
 {
-    public async Task<IReadOnlyList<SubmissionDto>> GetAllSubmissionsAsync(CancellationToken cancellationToken = default)
+    public async Task<SubmissionDto[]> GetAllSubmissionsAsync(CancellationToken cancellationToken = default)
     {
         var submissions = await submissionRepository.GetAllAsync(cancellationToken);
 
@@ -20,7 +20,7 @@ public sealed class SubmissionService(
             s.Status,
             s.SubmittedAt,
             s.ReviewedAt))
-            .ToList();
+            .ToArray();
     }
 
     public async Task<SubmissionDto?> GetSubmissionByIdAsync(Guid submissionId, CancellationToken cancellationToken = default)
@@ -50,7 +50,7 @@ public sealed class SubmissionService(
             dto.EvidenceUrl,
             DateTime.UtcNow);
 
-        submissionRepository.Add(submission);
+        await submissionRepository.AddAsync(submission);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new SubmissionDto(
@@ -89,7 +89,7 @@ public sealed class SubmissionService(
             return false;
         }
 
-        submissionRepository.Delete(submission);
+        submissionRepository.DeleteAsync(submission);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return true;
