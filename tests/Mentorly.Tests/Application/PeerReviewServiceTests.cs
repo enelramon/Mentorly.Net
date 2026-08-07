@@ -125,6 +125,18 @@ public sealed class PeerReviewServiceTests
             LastAdded = review;
             return Task.CompletedTask;
         }
+
+        public Task<PeerReview[]> GetAllAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult(Array.Empty<PeerReview>());
+
+        public Task<PeerReview?> GetByIdAsync(Guid peerReviewId, CancellationToken cancellationToken = default)
+            => Task.FromResult<PeerReview?>(null);
+
+        public Task UpdateAsync(PeerReview peerReview, CancellationToken cancellationToken = default)
+            => Task.CompletedTask;
+
+        public Task DeleteAsync(PeerReview peerReview, CancellationToken cancellationToken = default)
+            => Task.CompletedTask;
     }
 
     private sealed class FakeUnitOfWork : IUnitOfWork
