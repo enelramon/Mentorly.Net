@@ -8,7 +8,7 @@ public sealed class StudentService(
     IStudentRepository studentRepository,
     IUnitOfWork unitOfWork) : IStudentService
 {
-    public async Task<IReadOnlyList<StudentDto>> GetAllStudentsAsync(CancellationToken cancellationToken = default)
+    public async Task<StudentDto[]> GetAllStudentsAsync(CancellationToken cancellationToken = default)
     {
         var students = await studentRepository.GetAllAsync(cancellationToken);
 
@@ -17,7 +17,7 @@ public sealed class StudentService(
             s.GoogleUserId,
             s.Email,
             s.DisplayName))
-            .ToList();
+            .ToArray();
     }
 
     public async Task<StudentDto?> GetStudentByIdAsync(Guid studentId, CancellationToken cancellationToken = default)
